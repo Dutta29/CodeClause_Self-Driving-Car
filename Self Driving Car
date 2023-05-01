@@ -1,0 +1,86 @@
+import pygame
+import random
+
+
+pygame.init()
+
+# Define the screen size
+screen_width = 640
+screen_height = 480
+
+
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (255, 0, 0)
+green = (0, 255, 0)
+
+
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Self-Driving Car")
+
+
+car_image = pygame.image.load("car.png")
+car_width = car_image.get_width()
+car_height = car_image.get_height()
+car_x = (screen_width - car_width) / 2
+car_y = screen_height - car_height - 10
+
+
+road_width = 300
+road_x = (screen_width - road_width) / 2
+road_y = 0
+road_height = screen_height
+
+
+obstacle_width = 50
+obstacle_height = 50
+obstacle_x = random.randint(0, screen_width - obstacle_width)
+obstacle_y = -obstacle_height
+obstacle_speed = 5
+
+
+clock = pygame.time.Clock()
+
+
+game_over = False
+while not game_over:
+    # Process events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+
+    
+    obstacle_y += obstacle_speed
+    if obstacle_y > screen_height:
+        obstacle_x = random.randint(0, screen_width - obstacle_width)
+        obstacle_y = -obstacle_height
+
+   
+    screen.fill(white)
+    pygame.draw.rect(screen, black, [road_x, road_y, road_width, road_height])
+    pygame.draw.rect(screen, red, [obstacle_x, obstacle_y, obstacle_width, obstacle_height])
+
+  
+    screen.blit(car_image, (car_x, car_y))
+
+   
+    if obstacle_y + obstacle_height > car_y:
+        if obstacle_x < car_x + car_width and obstacle_x + obstacle_width > car_x:
+            game_over = True
+
+    
+    if car_x < road_x:
+        car_x += 5
+    elif car_x > road_x + road_width - car_width:
+        car_x -= 5
+    elif car_x + car_width < obstacle_x or car_x > obstacle_x + obstacle_width:
+        car_x += random.choice([-5, 5])
+
+
+    pygame.display.update()
+
+    
+    clock.tick(60)
+
+
+pygame.quit()
